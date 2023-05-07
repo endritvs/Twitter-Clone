@@ -6,8 +6,11 @@ use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Followers;
+use App\Models\Notifications;
 use App\Models\Posts;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -96,11 +99,19 @@ class UserController extends Controller
         return redirect()->back();   
     }
     
-
     public function follow(User $user)
     {
         $userAuthenticated = User::findOrFail(Auth::user()->id);
         $userAuthenticated->following()->syncWithoutDetaching($user->id);
+        date_default_timezone_set('Europe/Belgrade'); 
+        Notifications::create([
+            'notification_message' => Auth::user()->name.' started following you!',
+            'notification_type' => 'Follow',
+            'user_id' => $user->id,
+            'from' => Auth::user()->id,
+            'created_at'=>Carbon::now()
+        ]);
+    
         return response()->json(['success' => true]);
     }
     
@@ -108,6 +119,11 @@ class UserController extends Controller
     {
         $userAuthenticated = User::findOrFail(Auth::user()->id);
         $userAuthenticated->following()->detach($user->id);
+        $existingNotification = Notifications::where('notification_message', Auth::user()->name.' started following you!')
+        ->where('notification_type', 'Follow')
+        ->where('user_id', $user->id)
+        ->first();
+        $existingNotification->delete();
         return response()->json(['success' => true]);
     }
 
@@ -172,11 +188,6 @@ class UserController extends Controller
         return response()->json($posts);
     }
     
-    
-    
-    
-    
-
     public function profile()
     {
         $userId = auth()->id();
@@ -205,7 +216,4 @@ class UserController extends Controller
             });
         return response()->json($posts);
     }
-    
-    
-
 }

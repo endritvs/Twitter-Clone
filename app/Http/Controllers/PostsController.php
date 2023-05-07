@@ -7,6 +7,8 @@ use App\Models\Posts;
 use App\Http\Requests\StorePostsRequest;
 use App\Http\Requests\UpdatePostsRequest;
 use App\Models\Like;
+use App\Models\Notifications;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class PostsController extends Controller
@@ -87,6 +89,15 @@ class PostsController extends Controller
         $post->likes()->save($like);
 
         $likeCount = $post->likes()->count();
+
+        date_default_timezone_set('Europe/Belgrade'); 
+        Notifications::create([
+            'notification_message' => Auth::user()->name.' liked your post!',
+            'notification_type' => 'Like',
+            'user_id' => $post->user->id,
+            'from' => Auth::user()->id,
+            'created_at'=>Carbon::now()
+        ]);
         return response()->json(['likeCount' => $likeCount]);
     }
 
@@ -97,7 +108,11 @@ class PostsController extends Controller
         if (!$post->likedBy($user)) {
             return response()->json(['message' => 'You have not liked this post'], 422);
         }
-
+        
+        $existingNotification = Notifications::where('notification_type', 'Like')
+        ->where('user_id', $post->user_id)
+        ->first();
+        $existingNotification->delete();
         $post->likes()->where('user_id', $user->id)->delete();
 
         $likeCount = $post->likes()->count();
