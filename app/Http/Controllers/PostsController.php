@@ -6,6 +6,7 @@ use App\Events\NewPost;
 use App\Models\Posts;
 use App\Http\Requests\StorePostsRequest;
 use App\Http\Requests\UpdatePostsRequest;
+use App\Models\Like;
 use Illuminate\Support\Facades\Auth;
 
 class PostsController extends Controller
@@ -15,7 +16,6 @@ class PostsController extends Controller
      */
     public function index()
     {
-      
     }
 
     /**
@@ -31,14 +31,17 @@ class PostsController extends Controller
      */
     public function store(StorePostsRequest $request)
     {
+        $userId = Auth::user()->id;
         $post = new Posts();
         $post->content = $request->input('content');
-        $post->user_id = Auth::user()->id;
+        $post->user_id = $userId;
         $post->save();
 
-        $postWithUser = Posts::with('user')->find($post->id);
+        $postWithUser = Posts::with(['user', 'likes' => function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        }])
+            ->withCount('likes')->find($post->id);
         return response()->json($postWithUser);
-    
     }
 
     /**
@@ -71,5 +74,33 @@ class PostsController extends Controller
     public function destroy(Posts $posts)
     {
         //
+    }
+
+    public function like(Posts $post)
+    {
+        if ($post->likes()->where('user_id', auth()->id())->exists()) {
+            return response(null, 409); // Conflict response code
+        }
+
+        $like = new Like();
+        $like->user_id = auth()->user()->id;
+        $post->likes()->save($like);
+
+        $likeCount = $post->likes()->count();
+        return response()->json(['likeCount' => $likeCount]);
+    }
+
+    public function dislike(Posts $post)
+    {
+        $user = auth()->user();
+
+        if (!$post->likedBy($user)) {
+            return response()->json(['message' => 'You have not liked this post'], 422);
+        }
+
+        $post->likes()->where('user_id', $user->id)->delete();
+
+        $likeCount = $post->likes()->count();
+        return response()->json(['message' => 'Post disliked', 'like_count' => $likeCount]);
     }
 }

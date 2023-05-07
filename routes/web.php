@@ -43,8 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-posts',[UserController::class,'userPosts'])->name('my.posts');
     Route::post('/image-upload',[UserController::class,'imageUpload'])->name('image.upload');
     Route::post('/background-upload',[UserController::class,'bgUpload'])->name('bg.upload');
-
-
+    Route::get('/add-friends',[UserController::class,'addMoreFollowers'])->name('more.followers');
+    Route::post('/posts/{post}/like', [PostsController::class, 'like'])->name('like.post');
+    Route::post('/posts/{post}/dislike', [PostsController::class, 'dislike'])->name('posts.dislike');
 });
 
 require __DIR__.'/auth.php';
