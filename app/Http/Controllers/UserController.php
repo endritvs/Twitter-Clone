@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -125,22 +126,55 @@ class UserController extends Controller
         return view('dashboard', compact('users'));
     }
 
+    public function addMoreFollowers()
+    {
+        $userId = auth()->id();
+    
+        $friends = Followers::where('follower_id', $userId)->pluck('user_id')->toArray();
+    
+        $users = User::whereNotIn('id', array_merge([$userId], $friends))
+        ->whereDoesntHave('followers', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->paginate(10);
+    
+        return view('followers.index', compact('users'));
+    }
+
     public function posts()
     {
         $userId = auth()->id();
-        $posts = Cache::remember('home-posts-' . $userId, 60, function () use ($userId) {
-            return Posts::with('user')->whereIn('user_id', function ($query) use ($userId) {
-                    $query->select('user_id')
-                          ->from('followers')
-                          ->where('follower_id', $userId)
-                          ->orWhere('user_id', $userId);
-                })
-                ->orWhere('user_id', $userId) // include your own posts
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-        });
+    
+        $posts = Posts::with(['user', 'likes' => function ($query) use ($userId) {
+                        $query->where('user_id', $userId);
+                    }])
+                    ->withCount('likes') // eager load the number of likes for each post
+                    ->whereIn('user_id', function ($query) use ($userId) {
+                        $query->select('user_id')
+                              ->from('followers')
+                              ->where('follower_id', $userId)
+                              ->orWhere('user_id', $userId);
+                    })
+                    ->orWhere('user_id', $userId) // include your own posts
+                    ->latest() // show the latest posts first
+                    ->paginate(10);
+    
+        foreach ($posts as $post) {
+            $post['liked'] = false;
+            foreach ($post->likes as $like) {
+                if ($like->user_id == $userId) {
+                    $post['liked'] = true;
+                    break;
+                }
+            }
+        }
+    
         return response()->json($posts);
     }
+    
+    
+    
+    
     
 
     public function profile()
@@ -151,8 +185,13 @@ class UserController extends Controller
         $followersCount = count($friends);
     
         $following = Followers::where('user_id', $userId)->pluck('follower_id')->toArray();
+        $userPosts = Posts::with('user')
+        ->where('user_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->get();
         $followingCount = count($following);
-        return view('profile.profile', compact('followersCount', 'followingCount'));
+        $countPosts = count($userPosts);
+        return view('profile.profile', compact('followersCount', 'followingCount','countPosts'));
     }
 
     public function userPosts()
