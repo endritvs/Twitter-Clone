@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -44,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/image-upload',[UserController::class,'imageUpload'])->name('image.upload');
     Route::post('/background-upload',[UserController::class,'bgUpload'])->name('bg.upload');
     Route::get('/add-friends',[UserController::class,'addMoreFollowers'])->name('more.followers');
+    Route::get('/notifications',[NotificationsController::class,'index'])->name('notifications.all');
     Route::post('/posts/{post}/like', [PostsController::class, 'like'])->name('like.post');
     Route::post('/posts/{post}/dislike', [PostsController::class, 'dislike'])->name('posts.dislike');
 });
