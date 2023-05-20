@@ -9,7 +9,13 @@ use App\Models\User;
 class Posts extends Model
 {
     use HasFactory;
-
+    protected $table = "posts";
+    protected $fillable = [
+        'user_id',
+        'content',
+        'image',
+        'video',
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -23,5 +29,10 @@ class Posts extends Model
     public function likes()
     {
         return $this->hasMany(Like::class);
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class,'post_id');
     }
 }

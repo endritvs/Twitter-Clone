@@ -10,6 +10,7 @@ use App\Models\Like;
 use App\Models\Notifications;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostsController extends Controller
 {
@@ -37,6 +38,18 @@ class PostsController extends Controller
         $post = new Posts();
         $post->content = $request->input('content');
         $post->user_id = $userId;
+          // Handle image upload
+        if ($request->hasFile('image')) {
+            $filePath = Storage::disk('public')->put('postImages', $request->file('image'));
+            $post->image = $filePath;
+        }
+
+        // Handle video upload
+        if ($request->hasFile('video')) {
+            $filePath = Storage::disk('public')->put('postVideos', $request->file('video'));
+            $post->video = $filePath;
+        }
+    
         $post->save();
 
         $postWithUser = Posts::with(['user', 'likes' => function ($query) use ($userId) {

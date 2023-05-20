@@ -61,4 +61,9 @@ class User extends Authenticatable
         return $this->hasMany(Posts::class);
     }
 
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
 }

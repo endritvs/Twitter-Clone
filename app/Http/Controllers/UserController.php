@@ -161,7 +161,11 @@ class UserController extends Controller
     {
         $userId = auth()->id();
     
-        $posts = Posts::with(['user', 'likes' => function ($query) use ($userId) {
+        $posts = Posts::with(['user', 
+        'bookmarks'=> function ($q) use ($userId){
+            $q->where('user_id',$userId);
+        }
+        ,'likes' => function ($query) use ($userId) {
                         $query->where('user_id', $userId);
                     }])
                     ->withCount('likes') // eager load the number of likes for each post
@@ -209,11 +213,55 @@ class UserController extends Controller
     {
         $userId = auth()->id();
         $posts = Cache::remember('posts-' . $userId, 60, function () use ($userId) {
-            return Posts::with('user')
+            return Posts::with(['user', 'likes' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            }])->withCount('likes')
                 ->where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
             });
+            foreach ($posts as $post) {
+                $post['liked'] = false;
+                foreach ($post->likes as $like) {
+                    if ($like->user_id == $userId) {
+                        $post['liked'] = true;
+                        break;
+                    }
+                }
+            }
         return response()->json($posts);
     }
+
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('search');
+
+        $results = DB::table('information_schema.tables')
+            ->where('table_schema', config('database.connections.mysql.database'))
+            ->where('table_type', 'BASE TABLE')
+            ->select('table_name')
+            ->get();
+
+        $tables = [];
+
+        foreach ($results as $result) {
+            $table = $result->table_name;
+            $query = DB::table($table);
+
+            $columns = Schema::getColumnListing($table);
+
+            foreach ($columns as $column) {
+                $query->orWhere($column, 'like', '%' . $searchTerm . '%');
+            }
+
+            $searchResults = $query->get();
+
+            if (count($searchResults)) {
+                $tables[$table] = $searchResults;
+            }
+        }
+
+        return view('explore.index', compact('tables', 'searchTerm'));
+    }
+
 }

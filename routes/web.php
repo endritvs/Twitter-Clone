@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProfileController;
@@ -48,6 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications',[NotificationsController::class,'index'])->name('notifications.all');
     Route::post('/posts/{post}/like', [PostsController::class, 'like'])->name('like.post');
     Route::post('/posts/{post}/dislike', [PostsController::class, 'dislike'])->name('posts.dislike');
+    Route::post('/bookmarks', [BookmarkController::class, 'store'])->name('bookmarks.store');
+    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
+    Route::delete('/bookmarks/{bookmark}', [BookmarkController::class, 'destroy'])->name('bookmarks.destroy');
+    Route::get('/search', [UserController::class,'search'])->name('search');
 });
 
 require __DIR__.'/auth.php';

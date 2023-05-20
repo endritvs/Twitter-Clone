@@ -71,7 +71,7 @@
                         <div>
                             <h2 class="text-xl leading-6 font-bold text-white capitalize">{{ Auth::user()->name }}</h2>
                             <p class="text-sm leading-5 font-medium text-gray-600 lowercase">
-                                {{ '@' . str_replace(' ', '', Auth::user()->name) }}</p>
+                                {{  Auth::user()->email }}</p>
                         </div>
                         <!-- Description and others -->
                         <div class="mt-3">
@@ -157,13 +157,13 @@
               <a href="#" class="flex-shrink-0 group block">
                 <div class="flex items-center">
                   <div>
-                    <img class="inline-block h-10 w-10 rounded-full" src="storage/${post.user.profile_pic}" alt="">
+                    <img class="inline-block h-10 w-10 rounded-full" src="${post.user.profile_pic === 'default-profile.jpg' ? 'images/default-profile.jpg' : 'storage/'+post.user.profile_pic}" alt="">
                   </div>
                   <div class="ml-3">
                     <p class="text-base leading-6 font-medium text-white">
                       ${post.user.name}
                       <span class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                        ${'@' + post.user.name.replace(/\s/g, '') + ' - ' + formattedDate}
+                        ${ post.user.email + ' - ' + formattedDate}
                       </span>
                     </p>
                   </div>
@@ -174,6 +174,30 @@
               <p class="text-base width-auto font-medium text-white flex-shrink">
                 ${post.content}
               </p>
+              <div class="flex px-5">
+                <div class="mr-3">
+                    ${post.image ? `<img src="storage/${post.image}" width="300" height="200" alt="Post Image">` : ''}
+                </div>
+                <div class="">
+                ${post.video ? `<video src="storage/${post.video}" width="300" height="200" controls></video>` : ''}
+                </div>
+                </div>
+            </div>
+            <div class="flex items-center py-4]">
+                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+                </div>
+                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+                </div>
+              </div>
+              <div class="flex items-center py-4 pl-[70px]">
+                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+                <button class="like-button ${post.liked===true ? 'liked' : ''}" data-post-id="${post.id}" data-csrf-token="{{ csrf_token() }}">
+                    <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    <span class="like-count">${post.likes_count}</span>
+
+                </button>
+            </div>
+          </div>
             </div>
             <hr class="border-gray-800">
           </article>
@@ -196,5 +220,54 @@ document.querySelector('#pagination').appendChild(loadMoreButton);
     }
 
     fetchPosts(currentPage);
+    $(document).on('click', '.like-button', function(event) {
+    const postId = $(this).data('post-id');
+    const likeCountElement = $(this).find('.like-count');
+    const csrfToken = $(this).data('csrf-token');
+    const isLiked = $(this).hasClass('liked');
 
+    if (isLiked) {
+        // User has already liked the post, so this click will undo the like
+        $.ajax({
+            url: `/posts/${postId}/dislike`,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify({
+                post_id: postId
+            })
+        })
+        .done(function(data) {
+            likeCountElement.text(data.like_count);
+            $(this).removeClass('liked');
+        }.bind(this))
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.error(errorThrown);
+        });
+    } else {
+        // User has not yet liked or disliked the post, so this click will like the post
+        $.ajax({
+            url: `/posts/${postId}/like`,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify({
+                post_id: postId
+            })
+        })
+        .done(function(data) {
+            $(this).addClass('liked');
+            likeCountElement.text(data.likeCount);
+        }.bind(this))
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.error(errorThrown);
+        });
+    }
+
+    event.preventDefault();
+});
 </script>
