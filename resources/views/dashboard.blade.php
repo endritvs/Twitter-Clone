@@ -22,14 +22,14 @@
             </div>
             <hr class="border-gray-600">
             <div class="flex">
-                <form id="post-form">
+                <form id="post-form" enctype="multipart/form-data">
                     @csrf
                     <div class="flex flex-shrink-0 p-4 pb-0">
                         <a href="#" class="flex-shrink-0 group block">
                             <div class="flex items-center">
                                 <div>
                                     <img class="inline-block h-10 w-10 rounded-full"
-                                        src="https://pbs.twimg.com/profile_images/1121328878142853120/e-rpjoJi_bigger.png"
+                                        src="{{ Auth::user()->profile_pic === 'default-profile.jpg' ? 'images/default-profile.jpg' : 'storage/' . Auth::user()->profile_pic }}"
                                         alt="">
                                 </div>
                                 <div class="ml-3">
@@ -41,18 +41,35 @@
                         </a>
                     </div>
                     <div class="flex-1 px-2 pt-2 mt-2">
-                        <textarea id="content" name="content" class="bg-[#43627e] pr-24 pl-3 pt-3 text-white border-white border-1 font-medium text-lg w-full rounded"
+                        <textarea id="content" name="content"
+                            class="bg-[#43627e] pr-24 pl-3 pt-3 text-white border-white border-1 font-medium text-lg w-full rounded"
                             rows="2" cols="50" placeholder="What's happening?"></textarea>
                     </div>
-            </div>
-            <div class="flex mb-5 mr-10">
-                <div class="flex-1">
-                    <button type="submit"
-                        class="bg-blue-400 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full mr-4 float-right">
-                        Tweet
-                    </button>
-                </div>
+                    <div class="flex">
+                        <div class="relative mt-2 ml-2">
+                            <label for="image" class="flex items-center justify-center w-full h-full px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out bg-blue-500 border border-transparent rounded-md shadow-sm cursor-pointer hover:bg-blue-600">
+                              <span>Upload Image</span>
+                              <input id="image" type="file" name="image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            </label>
+                          </div>
+                          
+                          <div class="mt-2 relative ml-3">
+                            <label for="video" class="flex items-center justify-center w-full h-full px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out bg-blue-500 border border-transparent rounded-md shadow-sm cursor-pointer hover:bg-blue-600">
+                              <span>Upload Video</span>
+                              <input id="video" type="file" name="video" accept="video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            </label>
+                          </div>
+                    </div>
+                    <div class="flex mb-5">
+                        <div class="flex-1">   
+                            <button type="submit"
+                                class="bg-blue-400 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full mr-4 float-right">
+                                Tweet
+                            </button>
+                        </div>
+                    </div>
                 </form>
+                
             </div>
             <hr class="border-gray-600 border-1">
             <div>
@@ -157,9 +174,10 @@
                         <div class="flex-1 ">
                             <div class="flex items-center w-48">
                                 <div>
-                                    <img class="inline-block h-10 w-auto rounded-full ml-4 mt-2"
-                                        src="https://pbs.twimg.com/profile_images/1121328878142853120/e-rpjoJi_bigger.png"
-                                        alt="" />
+                                        <img class="inline-block h-10 w-auto rounded-full ml-4 mt-2"
+    src="{{ $user->profile_pic === 'default-profile.jpg' ? 'images/default-profile.jpg' : 'storage/' . $user->profile_pic }}"
+    alt="">
+
                                 </div>
                                 <div class="ml-3 mt-3">
                                     <p class="text-base leading-6 capitalize font-medium text-white">
@@ -167,7 +185,7 @@
                                     </p>
                                     <p
                                         class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                                        {{ '@' . str_replace(' ', '', $user->name) }}
+                                        {{ $user->email }}
                                     </p>
                                 </div>
                             </div>
@@ -213,17 +231,15 @@
 <script>
     const followButtons = document.querySelectorAll('.follow-button');
 
-    // Add click event listeners to all follow buttons
     followButtons.forEach(button => {
         button.addEventListener('click', (event) => {
-            event.preventDefault(); // prevent the default form submission behavior
+            event.preventDefault(); 
 
             const userId = button.dataset.userId;
             const followUrl = `{{ route('follow', ':userId') }}`.replace(':userId', userId);
             const unfollowUrl = `{{ route('unfollow', ':userId') }}`.replace(':userId', userId);
             const isFollowing = button.classList.contains('bg-blue-500');
 
-            // Send Ajax request to follow or unfollow the user
             fetch(isFollowing ? unfollowUrl : followUrl, {
                     method: 'POST',
                     headers: {
@@ -237,7 +253,6 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Update the follow button and its text
                     button.classList.toggle('bg-blue-500');
                     button.textContent = isFollowing ? 'Follow' : 'Following';
                 })
@@ -249,13 +264,11 @@
 
     const unfollowButtons = document.querySelectorAll('.unfollow-button');
 
-    // Add click event listeners to all unfollow buttons
     unfollowButtons.forEach(button => {
         button.addEventListener('click', () => {
             const userId = button.dataset.userId;
             const unfollowUrl = `{{ route('unfollow', ':userId') }}`.replace(':userId', userId);
 
-            // Send Ajax request to unfollow the user
             fetch(unfollowUrl, {
                     method: 'POST',
                     headers: {
@@ -270,7 +283,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update the UI to reflect the change
                         button.classList.remove('bg-blue-500');
                         button.classList.add('bg-transparent');
                         button.innerHTML = 'Follow';
@@ -284,19 +296,15 @@
 </script>
 <script>
     document.querySelector('#post-form').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the form from being submitted via HTTP POST
+        event.preventDefault(); 
 
-        // Get the form data using FormData
         const formData = new FormData(event.target);
-        console.log(formData)
-        // Send an AJAX request to the server
         fetch('{{ route('store.post') }}', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
-                // Assign the returned data to the post object
                 const posts = data;
                 const options = {
                     year: 'numeric',
@@ -305,12 +313,9 @@
                     hour: 'numeric',
                     minute: 'numeric'
                 };
-                let username = posts.user.name.replace(/\s+/g, '');
-                let handle = `@${username}`;
 
                 const date = new Date(posts.created_at);
                 const formattedDate = date.toLocaleString('en-US', options);
-                // Construct the HTML for the new post
                 const postHtml = `
                 <li class="post">
                     <article class="hover:bg-gray-800 transition duration-350 ease-in-out">
@@ -318,23 +323,41 @@
               <a href="#" class="flex-shrink-0 group block">
                 <div class="flex items-center">
                   <div>
-                    <img class="inline-block h-10 w-10 rounded-full" src="images/${posts.user.profile_pic}" alt="">
+                    <img class="inline-block h-10 w-10 rounded-full" src="${posts.user.profile_pic === 'default-profile.jpg' ? 'images/default-profile.jpg' : 'storage/'+posts.user.profile_pic}" alt="">
                   </div>
                   <div class="ml-3">
-                    <p class="text-base leading-6 capitalize font-medium text-white">
+                    <p class="text-base leading-6 font-medium text-white">
                       ${posts.user.name}
                       <span class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                       ${handle} - ${formattedDate}
+                       ${posts.user.email} - ${formattedDate}
                       </span>
                     </p>
                   </div>
                 </div>
               </a>
+              <button id="dropdownMenuIconButton${posts.id}" data-dropdown-toggle="dropdownDots${posts.id}" class="inline-flex items-center ml-[120px] max-h-[40px] p-2 text-sm font-medium text-center text-gray-900 bg-gray-400 rounded-lg hover:bg-gray-600 focus:ring-4 focus:outline-none dark:text-gray-800 focus:ring-gray-50" type="button" onclick="toggleDropdown('dropdownDots${posts.id}')">
+    <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+  </button>
+  <div id="dropdownDots${posts.id}" class="z-50 hidden bg-gray-400 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+      <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton${posts.id}">
+        <li>
+          <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Bookmark</a>
+        </li>
+      </ul>
+  </div>
             </div>
             <div class="pl-16">
               <p class="text-base width-auto font-medium text-white flex-shrink">
                 ${posts.content}
               </p>
+              <div class="flex px-5">
+                <div class="mr-3">
+                    ${posts.image ? `<img src="storage/${posts.image}" width="300" height="200" alt="Post Image">` : ''}
+                </div>
+                <div class="">
+                ${posts.video ? `<video src="storage/${posts.video}" width="300" height="200" controls></video>` : ''}
+                </div>
+                </div>
               <div class="flex items-center py-4">
                 <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
                 </div>
@@ -362,6 +385,10 @@
             .catch(error => console.error(error));
     });
 
+    function toggleDropdown(dropdownId) {
+    var dropdown = document.getElementById(dropdownId);
+    dropdown.classList.toggle('hidden');
+  }
     let currentPage = 1;
     var lastPage;
     function fetchNewPosts(page) {
@@ -369,7 +396,6 @@
             .then(response => response.json())
             .then(posts => {
                 lastPage = posts.last_page;
-                console.log(lastPage);
                 const newPosts = Array.isArray(posts.data) ? posts.data : Array.from(posts.data);
                 const existingPosts = Array.from(document.querySelectorAll('#posts li'));
                 const filteredPosts = newPosts.filter(post => !existingPosts.some(existingPost => existingPost
@@ -379,7 +405,6 @@
                     const postElement = document.createElement('li');
                     postElement.dataset.postId = post.id;
 
-                    // format the date string
                     const options = {
                         year: 'numeric',
                         month: 'short',
@@ -389,29 +414,48 @@
                     };
                     const date = new Date(post.created_at);
                     const formattedDate = date.toLocaleString('en-US', options);
-                    let username = post.user.name.replace(/\s+/g, '');
-                    let handle = `@${username}`;
                     postElement.innerHTML = `
           <article class="hover:bg-gray-800 transition duration-350 ease-in-out">
-            <div class="flex flex-shrink-0 p-4 pb-0">
+            <div class="flex flex-shrink-0 p-4 pb-0 absolute">
               <a href="#" class="flex-shrink-0 group block">
                 <div class="flex items-center">
                   <div>
-                    <img class="inline-block h-10 w-10 rounded-full" src="images/${post.user.profile_pic}" alt="">
+                    <img class="inline-block h-10 w-10 rounded-full" src="${post.user.profile_pic === 'default-profile.jpg' ? 'images/default-profile.jpg' : 'storage/'+post.user.profile_pic}" alt="">
                   </div>
                   <div class="ml-3">
-                    <p class="text-base leading-6 capitalize font-medium text-white">
+                    <p class="text-base leading-6 font-medium text-white">
                       ${post.user.name}
                       <span class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                       ${handle} - ${formattedDate}
+                       ${post.user.email} - ${formattedDate}
                       </span>
                     </p>
                   </div>
-                </div>
+                </div>    
               </a>
+            <button id="dropdownMenuIconButton${post.id}" data-dropdown-toggle="dropdownDots${post.id}" class="inline-flex items-center ml-[120px] max-h-[40px] p-2 text-sm font-medium text-center text-gray-900 bg-gray-400 rounded-lg hover:bg-gray-600 focus:ring-4 focus:outline-none dark:text-gray-800 focus:ring-gray-50" type="button" onclick="toggleDropdown('dropdownDots${post.id}')">
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+            </button>
+            <div id="dropdownDots${post.id}" class="z-50 hidden bg-gray-400 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton${post.id}">
+                <li>
+                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="${post.bookmarks.some(bookmark => bookmark.post_id === post.id) ? `removeBookmark(${post.id})` : `bookmarkPost(${post.id})`}">
+  ${post.bookmarks.some(bookmark => bookmark.post_id === post.id) ? 'Remove Bookmark' : 'Bookmark'}
+</a>
+
+                </li>
+                </ul>
             </div>
-            <div class="pl-16">
-              <p class="text-base width-auto font-medium text-white flex-shrink">
+            </div>
+            <div>
+              <div class="flex px-5">
+                <div class="mr-3 mt-[100px]">
+                    ${post.image ? `<img src="storage/${post.image}" width="300" height="200" alt="Post Image">` : ''}
+                </div>
+                <div class="mt-[100px]">
+                ${post.video ? `<video src="storage/${post.video}" width="300" height="200" controls></video>` : ''}
+                </div>
+                </div>
+                <p class="pl-[70px] mt-5 pb-5 text-base width-auto font-medium text-white flex-shrink">
                 ${post.content}
               </p>
               <div class="flex items-center py-4">
@@ -420,7 +464,7 @@
                 <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
                 </div>
               </div>
-              <div class="flex items-center py-4">
+              <div class="flex items-center py-4 pl-[70px]">
                 <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
                 <button class="like-button ${post.liked===true ? 'liked' : ''}" data-post-id="${post.id}" data-csrf-token="{{ csrf_token() }}">
                     <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
@@ -449,7 +493,6 @@
     });
     }
     fetchNewPosts(currentPage);
-    setInterval(() => fetchNewPosts(currentPage), 60000);
 
     $(document).on('click', '.like-button', function(event) {
     const postId = $(this).data('post-id');
@@ -458,7 +501,6 @@
     const isLiked = $(this).hasClass('liked');
 
     if (isLiked) {
-        // User has already liked the post, so this click will undo the like
         $.ajax({
             url: `/posts/${postId}/dislike`,
             method: 'POST',
@@ -478,7 +520,6 @@
             console.error(errorThrown);
         });
     } else {
-        // User has not yet liked or disliked the post, so this click will like the post
         $.ajax({
             url: `/posts/${postId}/like`,
             method: 'POST',
@@ -501,6 +542,59 @@
 
     event.preventDefault();
 });
+
+function bookmarkPost(postId) {
+    var csrfToken = $('meta[name="csrf-token"]').attr('content');
+    var formData = new FormData();
+    formData.append('_token', csrfToken);
+    formData.append('post_id', postId);
+
+    $.ajax({
+        url: '/bookmarks',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            alert(response.message);
+            
+            // Change the text of the bookmark
+            var bookmarkElement = $(`a[onclick="bookmarkPost(${postId})"]`);
+            bookmarkElement.text('Remove Bookmark');
+            bookmarkElement.attr('onclick', `removeBookmark(${postId})`);
+        },
+        error: function (xhr, status, error) {
+            console.error(error);
+        }
+    });
+}
+
+function removeBookmark(postId) {
+    var csrfToken = $('meta[name="csrf-token"]').attr('content');
+    var formData = new FormData();
+    formData.append('_token', csrfToken);
+    formData.append('_method', 'DELETE'); // Add the _method field with the value "DELETE"
+    formData.append('post_id', postId);
+
+    $.ajax({
+        url: '/bookmarks/' + postId,
+        type: 'POST', // Use POST method to send the DELETE request
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            alert(response.message);
+
+            // Change the text of the bookmark back to "Bookmark"
+            var bookmarkElement = $(`a[onclick="removeBookmark(${postId})"]`);
+            bookmarkElement.text('Bookmark');
+            bookmarkElement.attr('onclick', `bookmarkPost(${postId})`);
+        },
+        error: function (xhr, status, error) {
+            console.error(error);
+        }
+    });
+}
 
 
 </script>

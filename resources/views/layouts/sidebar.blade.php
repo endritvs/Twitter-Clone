@@ -1,4 +1,5 @@
 {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.4/flowbite.min.css" rel="stylesheet" /> --}}
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.4/flowbite.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <div class="w-2/5 text-white h-12 pl-32 py-4 h-auto">
@@ -49,7 +50,7 @@
             </svg>
             Messages
         </a>
-        <a href="#"
+        <a href="{{route('bookmarks.index')}}"
             class="mt-1 group flex items-center px-2 py-2 text-base leading-6 font-medium rounded-full hover:bg-[#192734] hover:text-blue-300">
             <svg class="mr-4 h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +108,7 @@
                     </p>
                     <p
                         class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                        {{ '@' . str_replace(' ', '', Auth::user()->name) }}
+                        {{  Auth::user()->email }}
                     </p>
                 </div>
             </div>
