@@ -47,17 +47,23 @@
                     </div>
                     <div class="flex">
                         <div class="relative mt-2 ml-2">
-                            <label for="image" class="flex items-center justify-center w-full h-full px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out bg-blue-500 border border-transparent rounded-md shadow-sm cursor-pointer hover:bg-blue-600">
-                              <span>Upload Image</span>
-                              <input id="image" type="file" name="image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            </label>
+                            {{-- <label for="image" class="flex items-center justify-center w-full h-full px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out bg-blue-500 border border-transparent rounded-md shadow-sm cursor-pointer hover:bg-blue-600"> --}}
+                              {{-- <span>Upload Image</span> --}}
+                              <a class="mt-1 group flex items-center text-blue-400 px-2 py-2 text-base leading-6 font-medium rounded-full hover:bg-blue-800 hover:text-blue-300" target="_blank">
+                                <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <input id="image" type="file" name="image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            </a>
+                            {{-- </label> --}}
                           </div>
                           
                           <div class="mt-2 relative ml-3">
-                            <label for="video" class="flex items-center justify-center w-full h-full px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out bg-blue-500 border border-transparent rounded-md shadow-sm cursor-pointer hover:bg-blue-600">
+                            {{-- <label for="video" class="flex items-center justify-center w-full h-full px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out bg-blue-500 border border-transparent rounded-md shadow-sm cursor-pointer hover:bg-blue-600">
                               <span>Upload Video</span>
-                              <input id="video" type="file" name="video" accept="video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            </label>
+                            </label> --}}
+                            <a class="mt-1 group flex items-center text-blue-400 px-2 py-2 text-base leading-6 font-medium rounded-full hover:bg-blue-800 hover:text-blue-300" target="_blank">
+                                <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <input id="video" type="file" name="video" accept="video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            </a>
                           </div>
                     </div>
                     <div class="flex mb-5">
@@ -183,12 +189,12 @@
                                     <p class="text-base leading-6 capitalize font-medium text-white">
                                         {{ $user->name }}
                                     </p>
-                                    <p
-                                        class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                                        {{ $user->email }}
-                                    </p>
                                 </div>
                             </div>
+                            <p
+                                class="text-xs leading-6 ml-4 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
+                                {{ $user->email }}
+                            </p>
 
                         </div>
                         <div class="flex-1 px-4 py-2 m-2">
@@ -318,65 +324,67 @@
                 const formattedDate = date.toLocaleString('en-US', options);
                 const postHtml = `
                 <li class="post">
-                    <article class="hover:bg-gray-800 transition duration-350 ease-in-out">
-            <div class="flex flex-shrink-0 p-4 pb-0">
-              <a href="#" class="flex-shrink-0 group block">
-                <div class="flex items-center">
-                  <div>
-                    <img class="inline-block h-10 w-10 rounded-full" src="${posts.user.profile_pic === 'default-profile.jpg' ? 'images/default-profile.jpg' : 'storage/'+posts.user.profile_pic}" alt="">
-                  </div>
-                  <div class="ml-3">
-                    <p class="text-base leading-6 font-medium text-white">
-                      ${posts.user.name}
-                      <span class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                       ${posts.user.email} - ${formattedDate}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </a>
-              <button id="dropdownMenuIconButton${posts.id}" data-dropdown-toggle="dropdownDots${posts.id}" class="inline-flex items-center ml-[120px] max-h-[40px] p-2 text-sm font-medium text-center text-gray-900 bg-gray-400 rounded-lg hover:bg-gray-600 focus:ring-4 focus:outline-none dark:text-gray-800 focus:ring-gray-50" type="button" onclick="toggleDropdown('dropdownDots${posts.id}')">
-    <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-  </button>
-  <div id="dropdownDots${posts.id}" class="z-50 hidden bg-gray-400 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
-      <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton${posts.id}">
-        <li>
-          <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Bookmark</a>
-        </li>
-      </ul>
-  </div>
-            </div>
-            <div class="pl-16">
-              <p class="text-base width-auto font-medium text-white flex-shrink">
-                ${posts.content}
-              </p>
-              <div class="flex px-5">
-                <div class="mr-3">
-                    ${posts.image ? `<img src="storage/${posts.image}" width="300" height="200" alt="Post Image">` : ''}
-                </div>
-                <div class="">
-                ${posts.video ? `<video src="storage/${posts.video}" width="300" height="200" controls></video>` : ''}
-                </div>
-                </div>
-              <div class="flex items-center py-4">
-                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                </div>
-                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                </div>
-              </div>
-              <div class="flex items-center py-4">
-                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                <button class="like-button ${posts.liked===true ? 'liked' : ''}" data-post-id="${posts.id}" data-csrf-token="{{ csrf_token() }}">
-                    <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                    <span class="like-count">${posts.likes_count}</span>
-
-                </button>
-            </div>
+  <article class="hover:bg-gray-800 transition duration-350 ease-in-out">
+    <div class="flex flex-shrink-0 p-4 pb-0">
+      <a href="#" class="flex-shrink-0 group block">
+        <div class="flex items-center">
+          <div>
+            <img class="inline-block h-10 w-10 rounded-full" src="${posts.user.profile_pic === 'default-profile.jpg' ? 'images/default-profile.jpg' : 'storage/'+posts.user.profile_pic}" alt="">
           </div>
-            </div>
-            <hr class="border-gray-700">
-          </article>
-                 </li>
+          <div class="ml-3">
+            <p class="text-base leading-6 font-medium text-white">
+              ${posts.user.name}
+              <span class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
+                ${posts.user.email} - ${formattedDate}
+              </span>
+            </p>
+          </div>
+        </div>
+      </a>
+      <button id="dropdownMenuIconButton${posts.id}" data-dropdown-toggle="dropdownDots${posts.id}" class="inline-flex items-center ml-[120px] max-h-[40px] p-2 text-sm font-medium text-center text-gray-900 bg-gray-400 rounded-lg hover:bg-gray-600 focus:ring-4 focus:outline-none dark:text-gray-800 focus:ring-gray-50" type="button" onclick="toggleDropdown('dropdownDots${posts.id}')">
+        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+      </button>
+      <div id="dropdownDots${posts.id}" class="z-50 hidden bg-gray-400 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton${posts.id}">
+          <li>
+            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Bookmark</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="pl-16">
+      <p class="text-base width-auto font-medium text-white flex-shrink">
+        ${posts.content}
+      </p>
+      <div class="flex px-5">
+        <div class="mr-3">
+          ${posts.image ? `<img src="storage/${posts.image}" width="300" height="200" alt="Post Image">` : ''}
+        </div>
+        <div class="">
+          ${posts.video ? `<video src="storage/${posts.video}" width="300" height="200" controls></video>` : ''}
+        </div>
+      </div>
+      <div class="flex items-center py-4">
+        <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+          <!-- Add relevant content here -->
+        </div>
+        <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+          <!-- Add relevant content here -->
+        </div>
+      </div>
+      <div class="flex items-center py-4">
+        <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+          <button class="like-button ${posts.liked === true ? 'liked' : ''}" data-post-id="${posts.id}" data-csrf-token="{{ csrf_token() }}">
+            <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+            <span class="like-count">${posts.likes_count}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <hr class="border-gray-700">
+  </article>
+</li>
+
                 `;
                 const post = document.querySelector('.posts');
                 post.insertAdjacentHTML('afterbegin', postHtml);
@@ -389,110 +397,152 @@
     var dropdown = document.getElementById(dropdownId);
     dropdown.classList.toggle('hidden');
   }
-    let currentPage = 1;
-    var lastPage;
-    function fetchNewPosts(page) {
-        fetch(`/posts/latest?page=${page}`)
-            .then(response => response.json())
-            .then(posts => {
-                lastPage = posts.last_page;
-                const newPosts = Array.isArray(posts.data) ? posts.data : Array.from(posts.data);
-                const existingPosts = Array.from(document.querySelectorAll('#posts li'));
-                const filteredPosts = newPosts.filter(post => !existingPosts.some(existingPost => existingPost
-                    .dataset.postId === post.id.toString()));
-                const postsContainer = document.querySelector('#posts');
-                filteredPosts.forEach(post => {
-                    const postElement = document.createElement('li');
-                    postElement.dataset.postId = post.id;
 
-                    const options = {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric'
-                    };
-                    const date = new Date(post.created_at);
-                    const formattedDate = date.toLocaleString('en-US', options);
-                    postElement.innerHTML = `
-          <article class="hover:bg-gray-800 transition duration-350 ease-in-out">
-            <div class="flex flex-shrink-0 p-4 pb-0 absolute">
-              <a href="#" class="flex-shrink-0 group block">
-                <div class="flex items-center">
-                  <div>
-                    <img class="inline-block h-10 w-10 rounded-full" src="${post.user.profile_pic === 'default-profile.jpg' ? 'images/default-profile.jpg' : 'storage/'+post.user.profile_pic}" alt="">
-                  </div>
-                  <div class="ml-3">
-                    <p class="text-base leading-6 font-medium text-white">
-                      ${post.user.name}
-                      <span class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                       ${post.user.email} - ${formattedDate}
-                      </span>
-                    </p>
-                  </div>
-                </div>    
-              </a>
-            <button id="dropdownMenuIconButton${post.id}" data-dropdown-toggle="dropdownDots${post.id}" class="inline-flex items-center ml-[120px] max-h-[40px] p-2 text-sm font-medium text-center text-gray-900 bg-gray-400 rounded-lg hover:bg-gray-600 focus:ring-4 focus:outline-none dark:text-gray-800 focus:ring-gray-50" type="button" onclick="toggleDropdown('dropdownDots${post.id}')">
-            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-            </button>
-            <div id="dropdownDots${post.id}" class="z-50 hidden bg-gray-400 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
-                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton${post.id}">
-                <li>
-                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="${post.bookmarks.some(bookmark => bookmark.post_id === post.id) ? `removeBookmark(${post.id})` : `bookmarkPost(${post.id})`}">
-  ${post.bookmarks.some(bookmark => bookmark.post_id === post.id) ? 'Remove Bookmark' : 'Bookmark'}
-</a>
 
-                </li>
-                </ul>
-            </div>
-            </div>
-            <div>
-              <div class="flex px-5">
-                <div class="mr-3 mt-[100px]">
-                    ${post.image ? `<img src="storage/${post.image}" width="300" height="200" alt="Post Image">` : ''}
-                </div>
-                <div class="mt-[100px]">
-                ${post.video ? `<video src="storage/${post.video}" width="300" height="200" controls></video>` : ''}
-                </div>
-                </div>
-                <p class="pl-[70px] mt-5 pb-5 text-base width-auto font-medium text-white flex-shrink">
-                ${post.content}
-              </p>
-              <div class="flex items-center py-4">
-                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                </div>
-                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                </div>
-              </div>
-              <div class="flex items-center py-4 pl-[70px]">
-                <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                <button class="like-button ${post.liked===true ? 'liked' : ''}" data-post-id="${post.id}" data-csrf-token="{{ csrf_token() }}">
-                    <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                    <span class="like-count">${post.likes_count}</span>
+let currentPage = 1;
+let lastPage;
 
-                </button>
-            </div>
-          </div>
-            </div>
-            <hr class="border-gray-700">
-          </article>
-        `;
-            postsContainer.prepend(postElement);
+function fetchNewPosts(page) {
+  fetch(`/posts/latest?page=${page}`)
+    .then(response => response.json())
+    .then(posts => {
+      if (posts && posts.data) {
+        const postsContainer = document.querySelector('#posts');
+        if (Array.isArray(posts.data)) {
+          posts.data.forEach(post => {
+            const postElement = createPostElement(post);
+            postsContainer.appendChild(postElement);
+          });
+        } else if (typeof posts.data === 'object') {
+            Object.values(posts.data).forEach(post => {
+          const postElement = createPostElement(post);
+          postsContainer.appendChild(postElement);
         });
-        if(currentPage < lastPage){
-    const loadMoreButton = document.createElement('button');
-    loadMoreButton.textContent = 'Load more';
-    loadMoreButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'py-2', 'px-4', 'rounded-full');
-    loadMoreButton.addEventListener('click', () => {
-      fetchNewPosts(++currentPage);
+        }
+      }
+
+      lastPage = posts.last_page;
+
+      let loadMoreButton = document.querySelector('#load-more-button');
+
+      if (!loadMoreButton) {
+        loadMoreButton = document.createElement('button');
+        loadMoreButton.textContent = 'Load more';
+        loadMoreButton.id = 'load-more-button';
+        loadMoreButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'py-2', 'px-4', 'rounded-full');
+        loadMoreButton.addEventListener('click', () => {
+          fetchNewPosts(++currentPage);
+        });
+        document.querySelector('#load-more-container').appendChild(loadMoreButton);
+      }
+
+      if (currentPage >= lastPage && loadMoreButton) {
+        loadMoreButton.remove();
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching new posts:', error);
     });
-    document.querySelector('#load-more-container').appendChild(loadMoreButton);
-}else{
-    document.querySelector('#load-more-container').remove();
 }
-    });
-    }
-    fetchNewPosts(currentPage);
+
+function getProfilePicUrl(post) {
+  if (post.user && post.user.profile_pic) {
+    return post.user.profile_pic.startsWith('default-profile.jpg')
+      ? 'images/default-profile.jpg'
+      : 'storage/' + post.user.profile_pic;
+  }
+  return '';
+}
+
+function getPostMedia(post) {
+  let mediaHtml = '';
+  if (post.image) {
+    mediaHtml += `<img src="storage/${post.image}" width="300" height="200" alt="Post Image">`;
+  }
+  if (post.video) {
+    mediaHtml += `<video src="storage/${post.video}" width="300" height="200" controls></video>`;
+  }
+  return mediaHtml;
+}
+
+function createPostElement(post) {
+  const postElement = document.createElement('li');
+  postElement.dataset.postId = post.id;
+
+  const options = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+  };
+  const date = new Date(post.created_at);
+  const formattedDate = date.toLocaleString('en-US', options);
+
+  postElement.innerHTML = `
+    <article class="hover:bg-gray-800 transition duration-350 ease-in-out">
+      <div class="flex flex-shrink-0 p-4 pb-0 absolute">
+        <a href="#" class="flex-shrink-0 group block">
+          <div class="flex items-center">
+            <div>
+              <img class="inline-block h-10 w-10 rounded-full" src="${getProfilePicUrl(post)}" alt="">
+            </div>
+            <div class="ml-3">
+              <p class="text-base leading-6 font-medium text-white">
+                ${post.user ? post.user.name : ''}
+                <span class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
+                  ${post.user ? `${post.user.email} - ${formattedDate}` : ''}
+                </span>
+              </p>
+            </div>
+          </div>    
+        </a>
+        <button id="dropdownMenuIconButton${post.id}" data-dropdown-toggle="dropdownDots${post.id}" class="inline-flex items-center ml-[120px] max-h-[40px] p-2 text-sm font-medium text-center text-white rounded-lg" type="button" onclick="toggleDropdown('dropdownDots${post.id}')">
+          <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+        </button>
+        <div id="dropdownDots${post.id}" class="z-50 hidden bg-gray-400 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton${post.id}">
+            <li>
+              <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="${post.bookmarks && post.bookmarks.some(bookmark => bookmark.post_id === post.id) ? `removeBookmark(${post.id})` : `bookmarkPost(${post.id})`}">
+                ${post.bookmarks && post.bookmarks.some(bookmark => bookmark.post_id === post.id) ? 'Remove Bookmark' : 'Bookmark'}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="flex px-5">
+          <div class="mr-3 mt-[100px]">
+            ${getPostMedia(post)}
+          </div>
+        </div>
+        <p class="pl-[70px] mt-5 pb-5 text-base width-auto font-medium text-white flex-shrink">
+          ${post.content}
+        </p>
+        <div class="flex items-center py-4">
+          <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+          </div>
+          <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+          </div>
+        </div>
+        <div class="flex items-center py-4 pl-[70px]">
+          <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+            <button class="like-button ${post.liked === true ? 'liked' : ''}" data-post-id="${post.id}" data-csrf-token="{{ csrf_token() }}">
+              <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+              <span class="like-count">${post.likes_count}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <hr class="border-gray-700">
+    </article>
+  `;
+
+  return postElement;
+}
+
+fetchNewPosts(currentPage);
+
 
     $(document).on('click', '.like-button', function(event) {
     const postId = $(this).data('post-id');

@@ -35,7 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    Route::get('/me/following',[UserController::class,'myFollowing'])->name('my.following');
+    Route::get('/me/followers',[UserController::class,'myFollowers'])->name('my.followers');
     Route::post('/follow/{user}', [UserController::class,'follow'])->name('follow');
     Route::post('/unfollow/{user}', [UserController::class,'unfollow'])->name('unfollow');
     Route::get('/home', [UserController::class,'addFollowers'])->name('addFollowers');

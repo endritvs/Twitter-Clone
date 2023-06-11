@@ -10,6 +10,7 @@ use App\Models\Notifications;
 use App\Models\Posts;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -168,26 +169,27 @@ class UserController extends Controller
         ,'likes' => function ($query) use ($userId) {
                         $query->where('user_id', $userId);
                     }])
-                    ->withCount('likes') // eager load the number of likes for each post
+                    ->withCount('likes')
                     ->whereIn('user_id', function ($query) use ($userId) {
                         $query->select('user_id')
                               ->from('followers')
                               ->where('follower_id', $userId)
                               ->orWhere('user_id', $userId);
                     })
-                    ->orWhere('user_id', $userId) // include your own posts
-                    ->latest() // show the latest posts first
-                    ->paginate(10);
+                    ->orWhere('user_id', $userId) 
+                    ->latest() 
+                    ->get();
     
-        foreach ($posts as $post) {
-            $post['liked'] = false;
-            foreach ($post->likes as $like) {
-                if ($like->user_id == $userId) {
-                    $post['liked'] = true;
-                    break;
-                }
-            }
-        }
+        $posts->each(function ($post) use ($userId) {
+            $post['liked'] = $post->likes->contains('user_id', $userId);
+        });
+
+        $perPage = 10;
+        $currentPage = request()->query('page', 1);
+    
+        $pagedData = $posts->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $posts = new LengthAwarePaginator($pagedData, $posts->count(), $perPage);
+        $posts->setPath(request()->url());
     
         return response()->json($posts);
     }
@@ -195,40 +197,54 @@ class UserController extends Controller
     public function profile()
     {
         $userId = auth()->id();
-    
-        $friends = Followers::where('follower_id', $userId)->pluck('user_id')->toArray();
-        $followersCount = count($friends);
-    
-        $following = Followers::where('user_id', $userId)->pluck('follower_id')->toArray();
-        $userPosts = Posts::with('user')
+        $followers =  Followers::where('follower_id', $userId)->count();
+        $following = Followers::where('user_id', $userId)->count();
+        $countPosts = Posts::with('user')
         ->where('user_id', $userId)
         ->orderBy('created_at', 'desc')
-        ->get();
-        $followingCount = count($following);
-        $countPosts = count($userPosts);
-        return view('profile.profile', compact('followersCount', 'followingCount','countPosts'));
+        ->count();
+
+        return view('profile.profile', compact('followers', 'following','countPosts'));
+    }
+
+    public function myFollowers()
+    {
+        $userId = auth()->id();
+        $followers = Followers::with('follower:id,name,email,profile_pic')->where('user_id', $userId)->paginate(10);
+        return view('userFollowing.index',compact('followers'));
+    }
+
+    public function myFollowing()
+    {
+        $userId = auth()->id();
+        $following = Followers::with('user:id,name,email,profile_pic')->where('follower_id', $userId)->paginate(10);
+        return view('userFollowers.index',compact('following'));
     }
 
     public function userPosts()
     {
         $userId = auth()->id();
-        $posts = Cache::remember('posts-' . $userId, 60, function () use ($userId) {
-            return Posts::with(['user', 'likes' => function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            }])->withCount('likes')
+        $cacheKey = 'posts-' . $userId;
+    
+        $posts = Cache::remember($cacheKey, 60, function () use ($userId) {
+            return Posts::with(['user', 'likes'])
+                ->withCount('likes')
                 ->where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
-                ->paginate(10);
-            });
-            foreach ($posts as $post) {
-                $post['liked'] = false;
-                foreach ($post->likes as $like) {
-                    if ($like->user_id == $userId) {
-                        $post['liked'] = true;
-                        break;
-                    }
-                }
-            }
+                ->get();
+        });
+    
+        $posts->each(function ($post) use ($userId) {
+            $post['liked'] = $post->likes->contains('user_id', $userId);
+        });
+    
+        $perPage = 10;
+        $currentPage = request()->query('page', 1);
+    
+        $pagedData = $posts->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $posts = new LengthAwarePaginator($pagedData, $posts->count(), $perPage);
+        $posts->setPath(request()->url());
+    
         return response()->json($posts);
     }
 

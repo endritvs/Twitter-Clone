@@ -17,9 +17,8 @@
                             </svg>
                         </a>
                     </div>
-                    <div class="mx-2">
+                    <div class="mt-3">
                         <h2 class="mb-0 text-xl font-bold text-white capitalize">{{ Auth::user()->name }}</h2>
-                        <p class="mb-0 w-48 text-xs text-gray-400">{{$countPosts}} Tweets</p>
                     </div>
                 </div>
 
@@ -108,18 +107,6 @@
                                         {{ date_format(Auth::user()->created_at, 'F, Y') }}</span></span>
                             </div>
                         </div>
-                        <div class="pt-3 flex justify-start items-start w-full divide-x divide-gray-800 divide-solid">
-                          <a href="{{route('my.followers')}}">
-                            <div class="text-center pr-3"><span
-                                    class="font-bold text-white">{{ $following }}</span><span
-                                    class="text-gray-600 ml-2">Followers</span></div>
-                          </a>
-                          <a href="{{route('my.following')}}">
-                            <div class="text-center px-3"><span
-                                    class="font-bold text-white">{{ $followers }}</span><span
-                                    class="text-gray-600 ml-2">Following</span></div>
-                          </a>
-                        </div>
                     </div>
                 </div>
                 <hr class="border-gray-800">
@@ -127,198 +114,41 @@
 
             <div id="posts-container">
                 <ul id="posts" class="posts">
-                    <!-- posts here -->
+                    <div class="rounded-lg bg-[#192734] overflow-hidden shadow-lg m-4">        
+                        @foreach ($following as $follower)
+                            <div class="flex flex-shrink-0">
+                                <div class="flex-1 ">
+                                    <div class="flex items-center w-48">
+                                        <div>
+                                            <img class="inline-block h-10 w-10 rounded-full ml-4 mt-4"
+                                                src="{{$follower->user->profile_pic === 'default-profile.jpg' ?  asset('images/default-profile.jpg') : (Storage::url($follower->user->profile_pic))}}"
+                                                alt="" />
+                                        </div>
+                                        <div class="ml-5 mt-3 w-full">
+                                            <p class="text-base leading-6 ml-2 capitalize font-medium text-white">
+                                                {{ $follower->user->name }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 px-4 py-2 m-2">
+                                    <a href="" class=" float-right">
+                                        <button
+                                            class="bg-transparent hover:bg-blue-500 text-white font-semibold hover:text-white py-2 px-4 border border-white hover:border-transparent rounded-full follow-button"
+                                            data-user-id="{{ $follower->user->id }}">
+                                            Follow
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                            <hr class="border-gray-600">
+                        @endforeach
+                        <div class="p-5 text-white">
+                            {{$following->links()}}
+                        </div>
+                    </div>
                 </ul>
             </div>
-            <div id="load-more-container" class="text-center p-4"></div>
-
         </section>
     </div>
 </main>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-
-let currentPage = 1;
-let lastPage;
-
-function fetchNewPosts(page) {
-  fetch(`/my-posts?page=${page}`)
-    .then(response => response.json())
-    .then(posts => {
-      if (posts && posts.data) {
-        const postsContainer = document.querySelector('#posts');
-        if (Array.isArray(posts.data)) {
-          posts.data.forEach(post => {
-            const postElement = createPostElement(post);
-            postsContainer.appendChild(postElement);
-          });
-        } else if (typeof posts.data === 'object') {
-            Object.values(posts.data).forEach(post => {
-          const postElement = createPostElement(post);
-          postsContainer.appendChild(postElement);
-        });
-        }
-      }
-
-      lastPage = posts.last_page;
-
-      let loadMoreButton = document.querySelector('#load-more-button');
-
-      if (!loadMoreButton) {
-        loadMoreButton = document.createElement('button');
-        loadMoreButton.textContent = 'Load more';
-        loadMoreButton.id = 'load-more-button';
-        loadMoreButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'py-2', 'px-4', 'rounded-full');
-        loadMoreButton.addEventListener('click', () => {
-          fetchNewPosts(++currentPage);
-        });
-        document.querySelector('#load-more-container').appendChild(loadMoreButton);
-      }
-
-      if (currentPage >= lastPage && loadMoreButton) {
-        loadMoreButton.remove();
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching new posts:', error);
-    });
-}
-
-function getProfilePicUrl(post) {
-  if (post.user && post.user.profile_pic) {
-    return post.user.profile_pic.startsWith('default-profile.jpg')
-      ? 'images/default-profile.jpg'
-      : 'storage/' + post.user.profile_pic;
-  }
-  return '';
-}
-
-function getPostMedia(post) {
-  let mediaHtml = '';
-  if (post.image) {
-    mediaHtml += `<img src="storage/${post.image}" width="300" height="200" alt="Post Image">`;
-  }
-  if (post.video) {
-    mediaHtml += `<video src="storage/${post.video}" width="300" height="200" controls></video>`;
-  }
-  return mediaHtml;
-}
-
-function createPostElement(post) {
-  const postElement = document.createElement('li');
-  postElement.dataset.postId = post.id;
-
-  const options = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric'
-  };
-  const date = new Date(post.created_at);
-  const formattedDate = date.toLocaleString('en-US', options);
-
-  postElement.innerHTML = `
-    <article class="hover:bg-gray-800 transition duration-350 ease-in-out">
-      <div class="flex flex-shrink-0 p-4 pb-0 absolute">
-        <a href="#" class="flex-shrink-0 group block">
-          <div class="flex items-center">
-            <div>
-              <img class="inline-block h-10 w-10 rounded-full" src="${getProfilePicUrl(post)}" alt="">
-            </div>
-            <div class="ml-3">
-              <p class="text-base leading-6 font-medium text-white">
-                ${post.user ? post.user.name : ''}
-                <span class="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                  ${post.user ? `${post.user.email} - ${formattedDate}` : ''}
-                </span>
-              </p>
-            </div>
-          </div>    
-        </a>
-      </div>
-      <div>
-        <div class="flex px-5">
-          <div class="mr-3 mt-[100px]">
-            ${getPostMedia(post)}
-          </div>
-        </div>
-        <p class="pl-[70px] mt-5 pb-5 text-base width-auto font-medium text-white flex-shrink">
-          ${post.content}
-        </p>
-        <div class="flex items-center py-4">
-          <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-          </div>
-          <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-          </div>
-        </div>
-        <div class="flex items-center py-4 pl-[70px]">
-          <div class="flex-1 flex items-center text-white text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-            <button class="like-button ${post.liked === true ? 'liked' : ''}" data-post-id="${post.id}" data-csrf-token="{{ csrf_token() }}">
-              <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-              <span class="like-count">${post.likes_count}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-      <hr class="border-gray-700">
-    </article>
-  `;
-
-  return postElement;
-}
-
-fetchNewPosts(currentPage);
-
-
-    $(document).on('click', '.like-button', function(event) {
-    const postId = $(this).data('post-id');
-    const likeCountElement = $(this).find('.like-count');
-    const csrfToken = $(this).data('csrf-token');
-    const isLiked = $(this).hasClass('liked');
-
-    if (isLiked) {
-        // User has already liked the post, so this click will undo the like
-        $.ajax({
-            url: `/posts/${postId}/dislike`,
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json'
-            },
-            data: JSON.stringify({
-                post_id: postId
-            })
-        })
-        .done(function(data) {
-            likeCountElement.text(data.like_count);
-            $(this).removeClass('liked');
-        }.bind(this))
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error(errorThrown);
-        });
-    } else {
-        // User has not yet liked or disliked the post, so this click will like the post
-        $.ajax({
-            url: `/posts/${postId}/like`,
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json'
-            },
-            data: JSON.stringify({
-                post_id: postId
-            })
-        })
-        .done(function(data) {
-            $(this).addClass('liked');
-            likeCountElement.text(data.likeCount);
-        }.bind(this))
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error(errorThrown);
-        });
-    }
-
-    event.preventDefault();
-});
-</script>
