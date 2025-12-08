@@ -4,6 +4,7 @@ use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RastiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -55,5 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/bookmarks/{bookmark}', [BookmarkController::class, 'destroy'])->name('bookmarks.destroy');
     Route::get('/search', [UserController::class,'search'])->name('search');
 });
+
+// Rasti CRUD Routes (no auth required)
+Route::resource('rasti', RastiController::class);
 
 require __DIR__.'/auth.php';
